@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --color-text-primary: #3F3F3F;
+  --color-text-about : #787878;
+  --color-bg: #F0FBFF;
+  --color-bgs: #C5F0FF;
+}
+
+
+@layer base {
+  * {
+    font-family: "Jockey One", sans-serif;
+    color : var(--color-text-primary) ;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
