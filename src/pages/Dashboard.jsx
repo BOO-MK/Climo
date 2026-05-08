@@ -1,20 +1,76 @@
-import Card from "../components/Card"
-import Chart from "../components/Chart"
+import { useEffect, useState } from "react";
+import Card from "../components/Card";
+import Chart from "../components/Chart";
 
 function Dashboard() {
+  const [sensorData, setSensorData] = useState({
+    temperature: "-",
+    humidity: "-",
+    avg_10min_humidity: "-",
+    temp_diff_5min: "-",
+    humidity_diff_5min: "-",
+    status: "-",
+  });
+
+  const fetchSensorData = async () => {
+    try {
+      const response = await fetch("/data");
+
+      if (!response.ok) {
+        throw new Error(`서버 오류: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("실제 센서 데이터:", data);
+
+      setSensorData({
+        temperature: data.temperature ?? "-",
+        humidity: data.humidity ?? "-",
+        avg_10min_humidity: data.avg_10min_humidity ?? "-",
+        temp_diff_5min: data.temp_diff_5min ?? "-",
+        humidity_diff_5min: data.humidity_diff_5min ?? "-",
+        status: data.status ?? "-",
+      });
+    } catch (error) {
+      console.error("센서 데이터 불러오기 실패:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSensorData();
+
+    const interval = setInterval(fetchSensorData, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const cards = [
-    { title: "Now Temp", value: "24.3", unit: "°C" },
-    { title: "Now RH", value: "41", unit: "%" },
-    { title: "Max Temp", value: "24.3", unit: "°C" },
-    { title: "Max Temp", value: "41", unit: "%" }
-  ]
+    {
+      title: "Now Temp",
+      value: sensorData.temperature,
+      unit: "°C",
+    },
+    {
+      title: "Now Humi",
+      value: sensorData.humidity,
+      unit: "%",
+    },
+    {
+      title: "10min Avg Humi",
+      value: sensorData.avg_10min_humidity,
+      unit: "%",
+    },
+    {
+      title: "Status",
+      value: sensorData.status,
+      unit: "",
+    },
+  ];
 
   return (
     <div className="flex-grow flex flex-col items-center pb-[100px] relative min-h-full">
-
-      {/* 배경 디자인 */}
-      <div className="
+      <div
+        className="
         absolute 
         top-[90px]
         left-[25px]
@@ -23,10 +79,11 @@ function Dashboard() {
         bg-[color:var(--color-bgs)] 
         rounded-t-[40px] 
         -z-10
-      "></div>
+      "
+      ></div>
 
-      {/* 메인 */}
-      <div className="
+      <div
+        className="
         grid 
         gap-6 
         mt-[115px] 
@@ -36,9 +93,8 @@ function Dashboard() {
         justify-center
         grid-cols-1 sm:grid-cols-2 lg:grid-cols-4
         z-10
-      ">
-
-        {/* 카드 */}
+      "
+      >
         {cards.map((card, i) => (
           <Card
             key={i}
@@ -48,26 +104,22 @@ function Dashboard() {
           />
         ))}
 
-        {/* 차트 영역 */}
-        <div className="
-          min-[0px]:col-span-1 
-          grid-column: 1 / -1; 
-          w-full
-          bg-[var(--color-bg)]
-          rounded-2xl shadow-xl 
-          p-6
-          h-[600px]
-          flex items-center justify-center
-        "
-        style={{ gridColumn: "1 / -1" }} /* 모든 열을 다 차지하도록 강제 */
+        <div
+          className="
+            w-full
+            bg-[var(--color-bg)]
+            rounded-2xl shadow-xl 
+            p-6
+            h-[600px]
+            flex items-center justify-center
+          "
+          style={{ gridColumn: "1 / -1" }}
         >
           <Chart />
         </div>
-
       </div>
-      
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;
